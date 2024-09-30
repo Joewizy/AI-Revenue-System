@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useRevenueContract } from "../smartContract/revenueContract";
 import eth from "../assets/ethereumorg_logo.png.png";
 
 const Revenue = () => {
   const [amount, setAmount] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [isWithdraw, setIsWithdraw] = useState(false); // State to toggle between deposit and withdraw
+
+  // Get the revenue contract functions from the hook
+  const { depositRevenue, withdrawRevenue } = useRevenueContract();
 
   return (
     <>
@@ -139,6 +142,13 @@ const Revenue = () => {
         <button
           className="btn btn-primary"
           type="submit"
+          onClick={() => {
+            if (isWithdraw) {
+              withdrawRevenue(withdrawAmount); // Call withdrawRevenue with the amount
+            } else {
+              depositRevenue(amount); // Call depositRevenue with the amount
+            }
+          }}
           style={{
             display: "block",
             margin: "0 auto",
