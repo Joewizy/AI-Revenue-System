@@ -1,20 +1,22 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import eth from "../assets/ethereumorg_logo.png.png";
+
 const Revenue = () => {
+  const [amount, setAmount] = useState("");
+  const [withdrawAmount, setWithdrawAmount] = useState("");
+  const [isWithdraw, setIsWithdraw] = useState(false); // State to toggle between deposit and withdraw
+
   return (
     <>
       <section className="container mt-5">
-        <div
-          className=""
-          style={{ display: "flex", justifyContent: "space-between" }}
-        >
-          <div className="">
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <div>
             <h3 style={{ fontWeight: "600", fontSize: "20px" }}>
               TwinGenie AI
             </h3>
           </div>
-
-          <div className="">
+          <div>
             <p style={{ fontWeight: "500", fontSize: "16px" }}>Revenue</p>
           </div>
         </div>
@@ -32,38 +34,38 @@ const Revenue = () => {
       >
         <div>
           <p style={{ fontWeight: "500", fontSize: "25px" }}>
-            Deposit and Withdraw Revenue
+            {isWithdraw ? "Withdraw Revenue" : "Deposit Revenue"}
           </p>
         </div>
 
         <div style={{ display: "flex", gap: "10px" }}>
           <button
             className="btn"
+            onClick={() => setIsWithdraw(false)}
             style={{
               width: "183px",
               height: "40px",
               borderRadius: "40px",
-              backgroundColor: "rgba(29,35,64,1)",
+              backgroundColor: isWithdraw ? "rgba(217, 217, 217, 1)" : "rgba(29,35,64,1)",
               color: "white",
             }}
           >
             Deposit Revenue
           </button>
 
-          <Link to="/withdraw">
-            <button
-              className="btn"
-              style={{
-                width: "183px",
-                height: "40px",
-                borderRadius: "40px",
-                backgroundColor: "rgba(217, 217, 217, 1)",
-                color: "white",
-              }}
-            >
-              Withdraw Revenue
-            </button>
-          </Link>
+          <button
+            className="btn"
+            onClick={() => setIsWithdraw(true)}
+            style={{
+              width: "183px",
+              height: "40px",
+              borderRadius: "40px",
+              backgroundColor: isWithdraw ? "rgba(29,35,64,1)" : "rgba(217, 217, 217, 1)",
+              color: "white",
+            }}
+          >
+            Withdraw Revenue
+          </button>
         </div>
       </section>
 
@@ -76,20 +78,33 @@ const Revenue = () => {
         }}
       >
         <div>
-          <p
-            style={{
-              fontWeight: "500",
-              fontSize: "16px",
-              paddingLeft: "29rem",
-            }}
-          >
+          <p style={{ fontWeight: "500", fontSize: "16px", paddingLeft: "29rem" }}>
             Amount
           </p>
         </div>
-        <div
-          style={{ display: "flex", gap: "10rem", justifyContent: "center" }}
-        >
-          <p style={{ fontWeight: "500", fontSize: "40px" }}>0</p>
+        <div style={{ display: "flex", gap: "10rem", justifyContent: "center" }}>
+          <input
+            type="number"
+            value={isWithdraw ? withdrawAmount : amount}
+            onChange={(e) => isWithdraw ? setWithdrawAmount(e.target.value) : setAmount(e.target.value)}
+            placeholder="Enter Amount" // Placeholder text
+            style={{
+              fontWeight: "500",
+              fontSize: "40px",
+              width: "120px",
+              textAlign: "center",
+              border: "none",
+              outline: "none",
+              backgroundColor: "rgba(238,238,238,1)",
+            }}
+          />
+          <style>{`
+            input::placeholder {
+              color: rgba(0, 0, 0, 0.5); // Slightly darker for better visibility
+              font-size: 20px; // Smaller size
+              text-align: center; // Centered alignment
+            }
+          `}</style>
 
           <button
             className="btn"
@@ -133,7 +148,7 @@ const Revenue = () => {
             height: "40px",
           }}
         >
-          Deposit
+          {isWithdraw ? "Withdraw" : "Deposit"}
         </button>
       </section>
     </>

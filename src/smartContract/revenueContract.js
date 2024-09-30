@@ -14,7 +14,7 @@ export const useRevenueContract = () => {
     const initEthers = async () => {
       if (typeof window.ethereum !== "undefined") {
         try {
-          const provider = new ethers.providers.Web3Provider(window.ethereum);
+          const provider = new ethers.BrowserProvider(window.ethereum);
           await provider.send("eth_requestAccounts", []);  // Request MetaMask accounts
           const signer = provider.getSigner();
           const contract = new ethers.Contract(contractAddress, abi, signer);
