@@ -6,31 +6,32 @@ export const useRevenueContract = () => {
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
 
-  // Initialize ethers and the contract
   useEffect(() => {
     const initEthers = async () => {
-        if (typeof window.ethereum !== "undefined") {
-          try {
-            const provider = new ethers.BrowserProvider(window.ethereum);
-            await provider.send("eth_requestAccounts", []); 
-            const signer = await provider.getSigner(); 
-      
-            setProvider(provider);
-            setSigner(signer);
-      
-          } catch (error) {
-            console.error("Error connecting to contract:", error);
-            alert(`Connection error: ${error.message}`);
-          }
-        } else {
-          alert("MetaMask not detected. Please install MetaMask.");
+      if (typeof window.ethereum !== "undefined") {
+        try {
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          await provider.send("eth_requestAccounts", []);
+          const signer = await provider.getSigner();
+
+          setProvider(provider);
+          setSigner(signer);
+
+          // Set up listeners
+          window.ethereum.on("accountsChanged", handleAccountChange);
+          window.ethereum.on("chainChanged", handleChainChange);
+        } catch (error) {
+          console.error("Error connecting to contract:", error);
+          alert(`Connection error: ${error.message}`);
         }
-      };      
+      } else {
+        alert("MetaMask not detected. Please install MetaMask.");
+      }
+    };
 
     initEthers();
 
     return () => {
-      // Clean up event listeners
       if (window.ethereum) {
         window.ethereum.removeListener("accountsChanged", handleAccountChange);
         window.ethereum.removeListener("chainChanged", handleChainChange);
@@ -45,12 +46,17 @@ export const useRevenueContract = () => {
   };
 
   const handleChainChange = () => {
-    window.location.reload(); // Reload the page on network change
+    window.location.reload();
   };
 
-  // Function to handle deposit revenue
   const depositRevenue = async (amount) => {
     if (signer) {
+      const depositAmount = parseFloat(amount);
+      if (depositAmount < 1) {
+        alert("Minimum deposit must be at least 1 ETH");
+        return;
+      }
+
       try {
         const contract = new ethers.Contract(contractAddress, abi, signer);
         const tx = await contract.depositRevenue({
@@ -67,7 +73,6 @@ export const useRevenueContract = () => {
     }
   };
 
-  // Function to handle withdraw revenue
   const withdrawRevenue = async () => {
     if (signer) {
       try {
@@ -77,7 +82,12 @@ export const useRevenueContract = () => {
         alert("Withdraw successful!");
       } catch (error) {
         console.error("Withdraw failed:", error);
-        alert(`Withdraw failed: ${error.message}`);
+        // Check if the error is due to the 30-day restriction
+        if (error.code === 'CALL_EXCEPTION') {
+          alert("Cannot withdraw funds till after a minimum of 30 days");
+        } else {
+          alert(`Withdraw failed: ${error.message}`);
+        }
       }
     } else {
       alert("Signer not initialized");

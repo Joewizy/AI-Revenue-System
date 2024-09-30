@@ -5,9 +5,9 @@ import eth from "../assets/ethereumorg_logo.png.png";
 const Revenue = () => {
   const [amount, setAmount] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
-  const [isWithdraw, setIsWithdraw] = useState(false); // State to toggle between deposit and withdraw
+  const [isWithdraw, setIsWithdraw] = useState(false); 
 
-  // Get the revenue contract functions from the hook
+
   const { depositRevenue, withdrawRevenue } = useRevenueContract();
 
   return (
@@ -90,7 +90,7 @@ const Revenue = () => {
             type="number"
             value={isWithdraw ? withdrawAmount : amount}
             onChange={(e) => isWithdraw ? setWithdrawAmount(e.target.value) : setAmount(e.target.value)}
-            placeholder="Enter Amount" // Placeholder text
+            placeholder="Enter Amount" 
             style={{
               fontWeight: "500",
               fontSize: "40px",

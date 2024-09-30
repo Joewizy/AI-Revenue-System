@@ -1,6 +1,46 @@
 import img4 from "../assets/mic-01.png";
 import img3 from "../assets/sent.png";
+import { useState } from "react";
+
 const TwinHome2 = () => {
+  const [userQuery, setUserQuery] = useState(""); // State to track the user query
+  const [aiResponse, setAiResponse] = useState(""); // State to store the AI response
+  const [loading, setLoading] = useState(false); // State to track loading state
+
+  // Function to handle the API request
+  const handleSubmit = async () => {
+    if (!userQuery) return; // Do nothing if query is empty
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        "https://llama.us.gaianet.network/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            query: userQuery, // Ensure this matches the expected format of the API
+          }),
+        }
+      );
+
+      // Log the raw response for debugging purposes
+      const rawResponse = await response.text();
+      console.log("Raw response from server:", rawResponse);
+
+      // Attempt to parse JSON only if the response is valid
+      const data = JSON.parse(rawResponse); // This might throw the error
+      setAiResponse(data.choices[0].message.content); // Assuming this is the correct path to the AI response
+    } catch (error) {
+      console.error("Error fetching AI response:", error);
+      setAiResponse("Something went wrong. Please try again.");
+    }
+
+    setLoading(false);
+  };
+
   return (
     <>
       <div
@@ -10,7 +50,7 @@ const TwinHome2 = () => {
         }}
       >
         <section
-          className=" pt-4"
+          className="pt-4"
           style={{
             paddingLeft: "5rem",
             paddingRight: "5rem",
@@ -21,7 +61,7 @@ const TwinHome2 = () => {
           <div style={{ display: "flex", justifyContent: "space-between" }}>
             <div style={{ display: "flex", gap: "15px" }}>
               <a
-                href=""
+                href="#"
                 style={{
                   fontWeight: "400",
                   fontSize: "14px",
@@ -32,7 +72,7 @@ const TwinHome2 = () => {
                 Your Rights
               </a>
               <a
-                href=""
+                href="#"
                 style={{
                   fontWeight: "400",
                   fontSize: "14px",
@@ -42,28 +82,6 @@ const TwinHome2 = () => {
               >
                 Matchmake Me
               </a>
-              {/* <div
-                style={{
-                  display: "inline-block",
-                  padding: "10px 20px",
-                  border: "1px solid white",
-                  borderTopLeftRadius: "30px",
-                  borderTopRightRadius: "30px",
-                  backgroundColor: "white",
-                  transform: "translateY(-10px)",
-                }}
-              >
-                <p
-                  style={{
-                    fontWeight: "400",
-                    fontSize: "14px",
-                    margin: 0,
-                    textDecoration:"none"
-                  }}
-                >
-                  Ask AI
-                </p>
-              </div> */}
             </div>
 
             <div
@@ -74,7 +92,7 @@ const TwinHome2 = () => {
               }}
             >
               <a
-                href=""
+                href="#"
                 style={{
                   textDecoration: "none",
                   fontWeight: "400",
@@ -98,27 +116,45 @@ const TwinHome2 = () => {
             background: "rgba(238, 238, 238, 1)",
             borderRadius: "10px",
             display: "flex",
-            flexDirection: "column", 
+            flexDirection: "column",
             justifyContent: "space-between",
             alignItems: "center",
             margin: "20px auto",
-            padding: "20px", 
+            padding: "20px",
           }}
         >
           {/* Upper part for AI response */}
           <div
             style={{
               width: "100%",
-              height: "80%", // Reserve 80% of the height for AI response
+              height: "80%",
               backgroundColor: "#f5f5f5",
               borderRadius: "10px",
               padding: "20px",
-              overflowY: "auto", // Allow scrolling if the response is long
+              overflowY: "auto",
             }}
           >
-            <p style={{ fontSize: "16px", fontWeight: "400", color: "#333", textAlign:"center" }}>
-              {/* AI response will go here */}
-             Reponse
+            <p
+              style={{
+                fontSize: "16px",
+                fontWeight: "400",
+                color: "#333",
+                textAlign: "center",
+              }}
+            >
+              {loading
+                ? "Loading..." // No need for nested <p> here
+                : aiResponse && (
+                    <div
+                      style={{
+                        marginTop: "20px",
+                        fontWeight: "600",
+                        fontSize: "16px",
+                      }}
+                    >
+                      <p>AI Response: {aiResponse}</p>
+                    </div>
+                  )}
             </p>
           </div>
 
@@ -126,7 +162,7 @@ const TwinHome2 = () => {
           <div style={{ position: "relative", width: "800px", height: "64px" }}>
             <img
               src={img4}
-              alt="Image"
+              alt="Mic"
               style={{
                 border: "1px solid rgba(156, 156, 156, 1)",
                 borderRadius: "32px",
@@ -134,9 +170,7 @@ const TwinHome2 = () => {
                 position: "absolute",
                 left: "15px",
                 top: "50%",
-                transform: "translateY(-50%)", 
-                paddingLeft: "10px",
-                paddingRight: "5px",
+                transform: "translateY(-50%)",
                 height: "40px",
                 width: "40px",
               }}
@@ -145,40 +179,47 @@ const TwinHome2 = () => {
               className="form-control"
               placeholder="Ask me anything..."
               aria-label="Search"
+              value={userQuery}
+              onChange={(e) => setUserQuery(e.target.value)}
               rows="2"
-              
               style={{
                 width: "100%",
                 borderRadius: "48px",
-                height: "64px",
+                minHeight: "64px",
                 textAlign: "start",
                 fontSize: "16px",
                 fontWeight: "400",
                 backgroundColor: "rgba(241, 241, 241, 1)",
                 paddingTop: "1rem",
-                paddingLeft: "70px", 
+                paddingLeft: "70px",
                 paddingRight: "70px",
                 resize: "none",
                 overflowWrap: "break-word",
               }}
             />
-            <button className="btn">
+            <button
+              className="btn"
+              onClick={handleSubmit} // Move onClick to the button
+              disabled={loading}
+              style={{
+                position: "absolute",
+                right: "15px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                backgroundColor: "rgba(74, 144, 226, 1)",
+                border: "1px solid rgba(74, 144, 226, 1)",
+                borderRadius: "32px",
+                padding: "10px",
+                height: "40px",
+                width: "40px",
+              }}
+            >
               <img
                 src={img3}
-                alt="Image"
+                alt="Send"
                 style={{
-                  border: "1px solid rgba(74, 144, 226, 1)",
-                  borderRadius: "32px",
-                  padding: "10px",
-                  backgroundColor: "rgba(74, 144, 226, 1)",
-                  position: "absolute",
-                  right: "15px",
-                  top: "50%",
-                  transform: "translateY(-50%)", // Center vertically in the search box
-                  paddingLeft: "10px",
-                  paddingRight: "5px",
-                  height: "40px",
-                  width: "40px",
+                  height: "100%",
+                  width: "100%",
                 }}
               />
             </button>
